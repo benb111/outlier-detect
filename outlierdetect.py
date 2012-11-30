@@ -150,6 +150,12 @@ class SValueModel:
 
         If the median is less than 1 / (# of aggregation units), it divides everything by
         (# of aggregation units) instead.
+        
+        Args:
+            value_dict: dictionary of the form (aggregation unit) -> (value).
+        Returns:
+            dictionary of the same form as value_dict, where the values are normalized as described
+            above.
         """
         median = np.median([value_dict[i] for i in value_dict.keys()])
         n = len(value_dict.keys())
