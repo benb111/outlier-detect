@@ -199,7 +199,7 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
 
 
 def _run_alg(data, agg_col, cat_cols, model):
-    """TODO: comment."""
+    """Runs an outlier detection algorithm, taking the model to use as input."""
     agg_units = sorted(np.unique(data[agg_col]))
     outlier_scores = collections.defaultdict(dict)
     for col in cat_cols:
