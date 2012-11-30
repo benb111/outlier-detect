@@ -168,7 +168,7 @@ class SValueModel:
 ########################################## Helper functions ########################################
 
 def _normalize_counts(counts, val=1):
-    """Normalize a dictionary of counts.
+    """Normalizes a dictionary of counts.
 
     It normalizes the counts to add up to val.
     counts should be a dictionary of the form {val1 : count1, val2 : count2, ...}.
