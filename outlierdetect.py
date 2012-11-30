@@ -116,9 +116,21 @@ if _STATS_AVAILABLE:
 
 
         def _sum_frequencies(self, agg_unit, frequencies):
-            """Sums frequencies for each aggregation unit except the given one."""
-            # Get the range from the frequencies dictionary.  Assumes that the
-            # range is the same for each aggregation unit in this distribution.
+            """Sums frequencies for each aggregation unit except the given one.
+            
+            Args:
+                agg_unit: the aggregation unit of concern.
+                frequencies: dictionary of dictionaries, mapping (aggregation unit) -> (value) ->
+                    (number of times aggregation unit reported value).
+            
+            Returns:
+                a dictionary mapping (value) -> (number of times all aggregation units apart from
+                agg_unit reported this value)
+
+            """
+            # Get the range from the frequencies dictionary.  Assumes that the range is the same
+            # for each aggregation unit in this distribution.  Bad things may happen if this is not
+            # the case.
             rng = frequencies[agg_unit].keys()
             all_frequencies = {}
             for r in rng:
