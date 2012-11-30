@@ -217,10 +217,32 @@ def _run_alg(data, agg_col, cat_cols, model):
 
 if _STATS_AVAILABLE:
     def run_mma(data, aggregation_column, categorical_columns):
-        """TODO: comment."""
+        """Runs the MMA algorithm (requires scipy module).
+        
+        Args:
+            data: numpy.recarray or pandas.DataFrame containing the data.
+            aggregation_column: a string giving the name of aggregation unit column.
+            categorical_columns: a list of the categorical column names for which outlier values
+                should be computed.
+        
+        Returns:
+            A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
+            (mma outlier score).
+        """
         return _run_alg(data, aggregation_column, categorical_columns, MultinomialModel())
 
 
 def run_sva(data, aggregation_column, categorical_columns):
-    """TODO: comment."""
+        """Runs the SVA algorithm.
+        
+        Args:
+            data: numpy.recarray or pandas.DataFrame containing the data.
+            aggregation_column: a string giving the name of aggregation unit column.
+            categorical_columns: a list of the categorical column names for which outlier values
+                should be computed.
+        
+        Returns:
+            A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
+            (sva outlier score).
+        """
     return _run_alg(data, aggregation_column, categorical_columns, SValueModel())
