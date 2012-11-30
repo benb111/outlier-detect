@@ -180,7 +180,19 @@ def _normalize_counts(counts, val=1):
 
 
 def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
-    """TODO: comment."""
+    """Computes a frequencies dictionary for a given column and aggregation unit.
+    
+    Args:
+        data: numpy.recarray or pandas.DataFrame containing the data.
+        col: name of column to compute frequencies for.
+        col_vals: a list giving the range of possible values in the column.
+        agg_col: string giving the name of the aggregation unit column for the data.
+        agg_unit: string giving the aggregation unit to compute frequencies for.
+
+    Returns:
+        A dictionary that maps (column value) -> (number of times agg_unit has column value in
+        data).
+    """
     frequencies = {}
     for col_val in col_vals:
         frequencies[col_val] = 0
