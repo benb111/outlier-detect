@@ -28,6 +28,7 @@ except ImportError:
     sys.stderr.flush()
     pass
 
+_FLOAT_EQ_DELTA = 0.000001  # For comparing float equality
 
 ############################################## Models ##############################################
 #
@@ -111,7 +112,7 @@ if _STATS_AVAILABLE:
             if actual.keys() != rng:
                 raise Exception("Ranges of two frequencies are not equal.")
             num_observations = sum([actual[r] for r in rng])
-            if abs(num_observations - sum([expected[r] for r in rng])) > 0.0001:
+            if abs(num_observations - sum([expected[r] for r in rng])) > _FLOAT_EQ_DELTA:
                 raise Exception("Frequencies must sum to the same value.")
             return sum([(actual[r] - expected[r])**2 / max(float(expected[r]), 1.0)
                 for r in expected.keys()])
