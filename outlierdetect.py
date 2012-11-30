@@ -104,6 +104,9 @@ if _STATS_AVAILABLE:
                     {'y' : 13.2, 'n' : 17.2}
                 actual: a dictionary in the same format as the expected dictionary
                     (with the same range) giving the actual distribution.
+            
+            Returns:
+                the X^2 statistic for the actual frequencies, given the expected frequencies.
             """
             rng = expected.keys()
             if actual.keys() != rng:
