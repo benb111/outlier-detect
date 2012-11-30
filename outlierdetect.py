@@ -81,10 +81,7 @@ except ImportError:
 
 if _STATS_AVAILABLE:
     class MultinomialModel:
-        """Model to compute outlier scores based on the chi^2 test for multinomial data.
-    
-        Requries scipy module.
-        """
+        """Model implementing MMA.  Requries scipy module."""
 
 
         def compute_outlier_scores(self, frequencies):
@@ -162,7 +159,7 @@ if _STATS_AVAILABLE:
 
 
 class SValueModel:
-    """Computes s-value outlier scores."""
+    """Model implementing SVA."""
 
 
     def compute_outlier_scores(self, frequencies):
