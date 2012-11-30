@@ -75,32 +75,8 @@ except ImportError:
 
 ############################################## Models ##############################################
 #
-# Each model must define a method with the signature compute_outlier_scores(frequencies).  The
-# parameter frequencies is a dictionary containing the distribution of response values for each
-# aggregation unit.  The method must return a dictionary giving the outlier score for each
-# aggregation unit.
-#
-# For example, the frequencies parameter might look like
-#
-# frequencies = {
-#     'interviewer1' : {
-#         'yes' : 23,
-#         'no'  : 12,
-#         'NA'  : 3
-#     },
-#     'interviewer2' : {
-#         'yes' : 8,
-#         'no'  : 25,
-#         'NA'  : 3
-#     }
-# }
-#
-# and the method might return something like
-# 
-# {
-#     'interviewer1' : 7.34,
-#     'interviewer2' : 2.30
-# }
+# Models define the core logic for computing an outlier score for a given algorithm.  Each model
+# must implement a compute_outlier_scores() method defining this logic.
 
 
 if _STATS_AVAILABLE:
