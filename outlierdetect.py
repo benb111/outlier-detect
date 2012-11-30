@@ -184,8 +184,8 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
     frequencies = {}
     for col_val in col_vals:
         frequencies[col_val] = 0
-        # (We can't just use collections.Counter() because frequencies.keys() is used to determine
-        # the range of possible values in other functions.)
+        # We can't just use collections.Counter() because frequencies.keys() is used to determine
+        # the range of possible values in other functions.
     if _PANDAS_AVAILABLE and isinstance(data, pd.DataFrame):
         grouped = data[data[agg_col] == agg_unit].groupby(col)
         for name, group in grouped:
