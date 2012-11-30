@@ -166,11 +166,15 @@ class SValueModel:
 ########################################## Helper functions ########################################
 
 def _normalize_counts(counts, val=1):
-    """Normalizes a dictionary of counts.
+    """Normalizes a dictionary of counts, such as those returned by _get_frequencies().
 
-    It normalizes the counts to add up to val.
-    counts should be a dictionary of the form {val1 : count1, val2 : count2, ...}.
-    Returns a dictionary of the same form.
+    Args:
+        counts: a dictionary mapping value -> count.
+        val: the number the counts should add up to.
+    
+    Returns:
+        dictionary of the same form as counts, except where the counts have been normalized to sum
+        to val.
     """
     n = sum([counts[k] for k in counts.keys()])
     frequencies = {}
