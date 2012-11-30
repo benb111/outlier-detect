@@ -73,6 +73,15 @@ if _STATS_AVAILABLE:
 
 
         def compute_outlier_scores(self, frequencies):
+            """Computes the SVA outlier scores fo the given frequencies dictionary.
+        
+            Args:
+                frequencies: dictionary of dictionaries, mapping (aggregation unit) -> (value) ->
+                    (number of times aggregation unit reported value).
+            
+            Returns:
+                dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+            """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units.")
             rng = frequencies[frequencies.keys()[0]].keys()
@@ -127,6 +136,15 @@ class SValueModel:
 
 
     def compute_outlier_scores(self, frequencies):
+        """Computes the SVA outlier scores fo the given frequencies dictionary.
+        
+        Args:
+            frequencies: dictionary of dictionaries, mapping (aggregation unit) -> (value) ->
+                (number of times aggregation unit reported value).
+            
+        Returns:
+            dictionary mapping (aggregation unit) -> (SVA outlier score for aggregation unit).
+        """
         if (len(frequencies.keys()) < 2):
             raise Exception("There must be at least 2 aggregation units.")
         rng = frequencies[frequencies.keys()[0]].keys()
