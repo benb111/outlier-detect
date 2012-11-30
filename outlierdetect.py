@@ -6,10 +6,49 @@ outlierdetect.py
 Created by Ben Birnbaum on 2012-08-27.
 benjamin.birnbaum@gmail.com
 
-TODO: add module level comments including sample calls and definition of aggregation unit etc.
 
-See B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh. Automated quality control for mobile
-data collection. In DEV ’12, pages 1:1–1:10, 2012.
+This module provides functions that implement the Multinomial Model Algorithm (MMA) and the s-Value
+Algorithm (SVA), as described in
+
+B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh.  Automated quality control for mobile data
+collection. In DEV ’12, pages 1:1–1:10, 2012.
+
+B. Birnbaum. Algorithmic approaches to detecting interviewer fabrication in surveys.  Ph.D.
+Dissertation, Univeristy of Washington, Department of Computer Science and Engineering, 2012.
+
+(See http://homes.cs.washington.edu/~birnbaum/pubs.html for PDF versions of these papers.)
+
+This module is designed to work for two Python data structures: numpy.recarray and
+pandas.DataFrame.  Both of these data structures consist of rows of structured data, where
+columns can be accessed by string identifiers.  One of these columns must be a special column,
+which is called the "aggreagation unit" column.  Each entry in this column is an identifier
+which an outlier score can be computed.  For example, if the data is from a survey, the aggregation
+column might be the column that lists which interviewer performed the survey; then we would be
+interested in obtaining outlier scores for the interviewers.  In other situations, the aggregation
+column might be different.  It just depends on what you want to compute outlier scores for.
+
+Note that the MMA and SVA algorithms work only for categorical data.  You must specify which
+categorical columns you want to compute outlier scores for.
+
+This module requires numpy, and the implementation of MMA requires scipy.  (The module will load
+without scipy, but MMA will not be available.)
+
+The algorithms should be called by the public methods run_mma() and run_sva().
+
+
+Examples:
+
+# With pandas.DataFrame:
+import pandas as pd
+import outlierdetect
+data = pd.read_csv('survey_data.csv')
+sva_scores = outlierdetect.run_sva(data, 'interviewer_id', ['available', 'cough', 'fever'])
+
+# With numpy.recarray:
+from matplotlib import mlab
+import outlierdetect
+data = mlab.csv2rec('survey_data.csv')
+sva_scores = outlierdetect.run_sva(data, 'interviewer_id', ['available', 'cough', 'fever'])
 """
 
 import collections
