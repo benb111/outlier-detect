@@ -58,19 +58,6 @@ except ImportError:
 #     'interviewer2' : 2.30
 # }
 
-def _normalize_counts(counts, val=1):
-    """Helper function to normalize a dictionary of counts.
-
-    It normalizes the counts to add up to val.
-    counts should be a dictionary of the form {val1 : count1, val2 : count2, ...}.
-    Returns a dictionary of the same form.
-    """
-    n = sum([counts[k] for k in counts.keys()])
-    frequencies = {}
-    for r in counts.keys():
-        frequencies[r] = val * float(counts[r]) / float(n)
-    return frequencies
-
 
 if _STATS_AVAILABLE:
     class MultinomialModel:
@@ -179,6 +166,20 @@ class SValueModel:
 
 
 ########################################## Helper functions ########################################
+
+def _normalize_counts(counts, val=1):
+    """Normalize a dictionary of counts.
+
+    It normalizes the counts to add up to val.
+    counts should be a dictionary of the form {val1 : count1, val2 : count2, ...}.
+    Returns a dictionary of the same form.
+    """
+    n = sum([counts[k] for k in counts.keys()])
+    frequencies = {}
+    for r in counts.keys():
+        frequencies[r] = val * float(counts[r]) / float(n)
+    return frequencies
+
 
 def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
     """TODO: comment."""
