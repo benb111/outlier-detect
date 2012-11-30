@@ -5,6 +5,11 @@ outlierdetect.py
 
 Created by Ben Birnbaum on 2012-08-27.
 benjamin.birnbaum@gmail.com
+
+TODO: add module level comments including sample calls and definition of aggregation unit etc.
+
+See B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh. Automated quality control for mobile
+data collection. In DEV ’12, pages 1:1–1:10, 2012.
 """
 
 import collections
@@ -63,9 +68,6 @@ if _STATS_AVAILABLE:
     class MultinomialModel:
         """Model to compute outlier scores based on the chi^2 test for multinomial data.
     
-        See B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh. Automated quality control for mobile
-        data collection. In DEV ’12, pages 1:1–1:10, 2012.
-    
         Requries scipy module.
         """
 
@@ -121,11 +123,7 @@ if _STATS_AVAILABLE:
 
 
 class SValueModel:
-    """Computes s-value outlier scores.
-    
-    See B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh. Automated quality control for mobile
-    data collection. In DEV ’12, pages 1:1–1:10, 2012.
-    """
+    """Computes s-value outlier scores."""
 
 
     def compute_outlier_scores(self, frequencies):
