@@ -9,6 +9,8 @@ benjamin.birnbaum@gmail.com
 
 import collections
 import itertools
+import math
+from matplotlib import pyplot as plt  # TODO: do I really want this dependency?
 import numpy as np
 import sys
 
@@ -27,6 +29,16 @@ except ImportError:
     sys.stderr.write('Cannot import scipy.  Some models may not be available.\n')
     sys.stderr.flush()
     pass
+
+
+_SCORE_COLORS = [  # From http://colorbrewer2.org/
+    (1.0, 1.0, 1.0),
+    (0.945, 0.933, 0.964),
+    (0.843, 0.709, 0.847),
+    (0.874, 0.396, 0.690),
+    (0.866, 0.109, 0.466),
+    (0.596, 0.0, .262745),
+]
 
 
 ############################################## Models ##############################################
@@ -212,6 +224,27 @@ def _run_alg(data, agg_col, cat_cols, model):
     return outlier_scores
 
 
+def _write_or_show_plot(filename):
+    if filename is None:
+        plt.show()
+    else:
+        plt.savefig(filename)
+        print "Wrote file " + filename
+
+
+def _compute_color_number(value, max_value, cutoffs=None):
+    num_colors = len(_SCORE_COLORS)
+    if cutoffs is None or len(cutoffs) != num_colors - 1:
+        norm_score = value / max_value
+        return int(math.floor(norm_score * (num_colors - 1)))
+    else:
+        color_number = 0
+        for i in range(num_colors - 1):
+            if value > cutoffs[i]:
+                color_number = i + 1
+        return color_number
+
+
 ########################################## Public functions ########################################
 
 if _STATS_AVAILABLE:
@@ -223,3 +256,127 @@ if _STATS_AVAILABLE:
 def run_sva(data, aggregation_column, categorical_columns):
     """TODO: comment."""
     return _run_alg(data, aggregation_column, categorical_columns, SValueModel())
+
+
+def plot_scores(scores, leftpad=1.5, rightpad=1.9, toppad=1.5, bottompad=0.1, scale=1, filename=None, cutoffs=None):
+    """Draws a 2-D heat map of outlier scores.
+    
+    Arguments:
+    scores -- dict of aggregation_unit -> column -> score
+    leftpad -- inches to add left of the heat map
+    rightpad -- inches to add right of the heat map
+    toppad -- inches to add above the heat map
+    bottompad -- inches to add below the heat map
+    scale -- scaling factor to apply after padding figured.  Affects everything but font.
+    filename -- if specified, gives the file name to which the plot will be saved.
+        If not specified, the plot is shown using the pylab.show() function.
+    cutoffs -- s-value cutoffs for different colors in heatmaps.  If none or a list of wrong
+        size, the cutoffs will be chosen automatically.
+    """
+    plot_scores_list([scores], [''], num_cols=1,
+        leftpad=leftpad, rightpad=rightpad, toppad=toppad, bottompad=bottompad,
+        scale=scale, filename=filename, cutoffs=cutoffs)
+
+
+def plot_scores_list(scores_list, titles_list, num_cols=1,
+        leftpad=1.5, rightpad=1.75, toppad=1.5, bottompad=0.3, scale=1, filename=None, cutoffs=None):
+    """Draws a set of 2-D heat maps of a list of outlier scores, all on the same scale.
+    
+    Arguments:
+    scores_list -- a list of dicts of aggregation_unit -> column -> score
+    titles_list -- a list of titles for each set of outlier scores
+    num_cols -- the number of columns on which to display the heat maps
+    leftpad -- inches to add to the left of each heat map
+    rightpad -- inches to add to the right of each heat map
+    toppad -- inches to add above above each heat map
+    bottompad -- inches to add below each heat map
+    scale -- scaling factor to apply after padding figured.  Affects everything but font.
+    filename -- if specified, gives the file name to which the plot will be saved.
+        If not specified, the plot is shown using the pylab.show() function.
+    cutoffs -- s-value cutoffs for different colors in heatmaps.  If none or a list of wrong
+        size, the cutoffs will be chosen automatically.
+
+    Raises:
+    ValueError if the length of scores_list and titles_list is not equal.
+    """
+    if len(scores_list) != len(titles_list):
+        raise ValueError("Length of scores_list must equal length of titles_list")
+
+    # The relative values of these constants is the only thing that matters.
+    SEP = 10  # row height and column width, in abstract axis units
+    RAD = 4   # radius of circles, in abstract axis units
+    UNITS_IN_INCH = 25.0  # Number of abstract axis units per inch
+    
+    # Compute useful variables and create figure.
+    num_scores = len(scores_list)
+    agg_units = sorted(scores_list[0].keys())
+    cols = sorted(scores_list[0][agg_units[0]].keys())
+    m, n = len(cols), len(agg_units)
+    xmax, ymax = m * SEP, n * SEP
+    max_score = max([scores[agg_unit][col]
+        for scores in scores_list
+        for agg_unit in agg_units
+        for col in cols])
+    num_colors = len(_SCORE_COLORS)
+    num_rows = num_scores / num_cols if num_scores % num_cols == 0 else num_scores / num_cols + 1
+    figlength = num_cols * ((m * SEP) / UNITS_IN_INCH + leftpad + rightpad)
+    figheight = num_rows * ((n * SEP) / UNITS_IN_INCH + toppad + bottompad)
+    wspace = num_cols * (leftpad + rightpad)  # Total amount of horizontal space
+    hspace = num_rows * (toppad + bottompad)  # Total amount of vertical space
+    plotlength = (figlength - wspace) / num_cols  # Length of one plot
+    plotheight = (figheight - hspace) / num_rows  # Height of one plot
+    
+    fig = plt.figure(figsize=(figlength * scale, figheight * scale))    
+    
+    # Iterate through scores to create subplots.
+    for i in range(len(scores_list)):
+        scores = scores_list[i]
+        title = titles_list[i]
+        
+        # Setup basic plot and ticks.
+        plt.subplot(num_rows, num_cols, i + 1)
+        plt.xlim((0, xmax))
+        plt.ylim((0, ymax))
+        plt.gca().xaxis.set_ticks_position('top')
+        plt.xticks([SEP / 2 + x for x in range(0, xmax, SEP)], cols, rotation=90)
+        plt.yticks([SEP / 2 + x for x in range(0, ymax, SEP)], agg_units)
+        plt.xlabel(title)
+    
+        # Draw the circles.
+        for i in range(m):
+            for j in range(n):
+                score = scores[agg_units[j]][cols[i]]
+                color_number = _compute_color_number(score, max_score, cutoffs)
+                color = _SCORE_COLORS[color_number]
+                cir = plt.Circle(((i + 0.5) * SEP, (j + 0.5) * SEP), RAD, fc=color, edgecolor='None')
+                plt.gca().add_patch(cir)
+        
+        # Create legend using dummy patches having the appropriate face color.
+        
+        if cutoffs is None:    
+            shown_cutoffs = []
+        else:
+            shown_cutoffs = ([0] + cutoffs)[::-1]
+        patches = []
+        for i in range(num_colors)[::-1]:
+            # The x-y coordinates of the circles don't matter since we're not actually
+            # adding them to the plot.
+            patches.append(plt.Circle((0, 0), fc=_SCORE_COLORS[i], edgecolor='None'))
+            if cutoffs is None:
+                shown_cutoffs.append("%.2f" % (i * (max_score / num_colors)))
+        # The values 0.7 and -0.01 are just what seemed to work best.
+        # The weirdness necessary to place the legend seems to be partly because of
+        # the weirdness of subplots_adjust().  Maybe there is a more precise way to place
+        # the plots precisely, using figure coordinates that would fix this.
+        plt.legend(patches, shown_cutoffs, loc='lower right', title='s-value\ncutoffs',
+            bbox_to_anchor=((plotlength + 0.7 * rightpad) / plotlength, -0.01))
+
+    # Fix white between plots (using fractional figure coordinates).
+    fig.subplots_adjust(
+        left=(leftpad / figlength),
+        right=(1 - rightpad / figlength),
+        bottom=(bottompad / figheight),
+        top=(1 - toppad / figheight),
+        wspace=(wspace / figlength),
+        hspace=(hspace / figheight))    
+    _write_or_show_plot(filename)
