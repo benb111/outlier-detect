@@ -197,7 +197,19 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
 
 
 def _run_alg(data, agg_col, cat_cols, model):
-    """Runs an outlier detection algorithm, taking the model to use as input."""
+    """Runs an outlier detection algorithm, taking the model to use as input.
+    
+    Args:
+        data: numpy.recarray or pandas.DataFrame containing the data.
+        agg_col: string giving the name of aggregation unit column.
+        cat_cols: list of the categorical column names for which outlier values should be computed.
+        model: object implementing a compute_outlier_scores() method as described in the comments
+            in the models section.
+    
+    Returns:
+        A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
+        (outlier score).
+    """
     agg_units = sorted(np.unique(data[agg_col]))
     outlier_scores = collections.defaultdict(dict)
     for col in cat_cols:
