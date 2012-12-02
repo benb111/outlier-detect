@@ -4,6 +4,13 @@
 test_outlierdetect.py
 
 Created by Ben Birnbaum on 2012-08-27.
+benjamin.birnbaum@gmail.com
+
+Unit tests for outlierdetect.py.  To run:
+
+python test_outlierdetect.py
+
+You must have scipy and pandas installed for the tests to load and run.
 """
 
 import unittest
