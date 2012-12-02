@@ -311,16 +311,16 @@ if _STATS_AVAILABLE:
 
 
 def run_sva(data, aggregation_column, categorical_columns):
-        """Runs the SVA algorithm.
+    """Runs the SVA algorithm.
         
-        Args:
-            data: numpy.recarray or pandas.DataFrame containing the data.
-            aggregation_column: a string giving the name of aggregation unit column.
-            categorical_columns: a list of the categorical column names for which outlier values
-                should be computed.
+    Args:
+        data: numpy.recarray or pandas.DataFrame containing the data.
+        aggregation_column: a string giving the name of aggregation unit column.
+        categorical_columns: a list of the categorical column names for which outlier values
+            should be computed.
         
-        Returns:
-            A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-            (sva outlier score).
-        """
+    Returns:
+        A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
+        (sva outlier score).
+    """
     return _run_alg(data, aggregation_column, categorical_columns, SValueModel())
