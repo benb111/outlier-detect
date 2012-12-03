@@ -1,18 +1,22 @@
 outlier-detect (http://github.com/benb111/outlier-detect)
 Copyright 2012, Ben Birnbaum (benjamin.birnbaum@gmail.com)
 
-Python implementions of the Multinomial Model Algorithm (MMA) and the s-Value Algorithm (SVA), as
-described in
+Python implementions of the Multinomial Model Algorithm (MMA) and the s-Value
+Algorithm (SVA), as described in
 
-B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh.  Automated quality control for mobile data
-collection. In DEV ’12, pages 1:1–1:10, 2012.
+B. Birnbaum, B. DeRenzi, A. D. Flaxman, and N. Lesh.  Automated quality control
+for mobile data collection. In DEV ’12, pages 1:1–1:10, 2012.
 
-B. Birnbaum. Algorithmic approaches to detecting interviewer fabrication in surveys.  Ph.D.
-Dissertation, Univeristy of Washington, Department of Computer Science and Engineering, 2012.
+B. Birnbaum. Algorithmic approaches to detecting interviewer fabrication in
+surveys.  Ph.D. Dissertation, Univeristy of Washington, Department of Computer
+Science and Engineering, 2012.
 
-(See http://homes.cs.washington.edu/~birnbaum/pubs.html for PDF versions of these papers.)
+(See http://homes.cs.washington.edu/~birnbaum/pubs.html for PDF versions of
+these papers.)
 
-To use, copy outlierdetect.py into the directory with your code, and import outlierdetect.  See the
-module documentation in outlierdetect.py and example.py for more details.
+To use, copy outlierdetect.py into the directory with your code, and import
+outlierdetect.  See the module documentation in outlierdetect.py and example.py
+for more details.
 
-Switch to the 'display' branch on git to use experimental visualization code in outlierdetect.
+Switch to the 'display' branch on git to use experimental visualization code in
+outlierdetect.
