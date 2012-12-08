@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
+# Copyright 2012 Benjamin Birnbaum
+# 
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except 
+# in compliance with the License.  You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software distributed under the License
+# is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+# or implied.  See the License for the specific language governing permissions and limitations
+# under the License.
 """
 outlierdetect.py
-
-Created by Ben Birnbaum on 2012-08-27.
-benjamin.birnbaum@gmail.com
-
+Created 2012-08-27 by Ben Birnbaum (benjamin.birnbaum@gmail.com)
 
 This module provides functions that implement the Multinomial Model Algorithm (MMA) and the s-Value
 Algorithm (SVA), as described in
