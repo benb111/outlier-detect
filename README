@@ -1,5 +1,6 @@
 outlier-detect (http://github.com/benb111/outlier-detect)
-Copyright 2012, Ben Birnbaum (benjamin.birnbaum@gmail.com)
+Ben Birnbaum (benjamin.birnbaum@gmail.com)
+Licensed under Apache (see LICENSE)
 
 Python implementions of the Multinomial Model Algorithm (MMA) and the s-Value
 Algorithm (SVA), as described in
