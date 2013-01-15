@@ -119,6 +119,10 @@ class TestGetFrequencies(unittest.TestCase):
         self.assertEquals(
             _get_frequencies(self.data_rec_array, 'question', ['yes', 'no'], 'interviewer', 'b'),
             {'yes' : 0, 'no' : 2})
+        self.assertEquals(
+            _get_frequencies(self.data_rec_array, 'question', ['yes'], 'interviewer', 'a'),
+            {'yes' : 3}
+        )
 
 
     def test_get_frequencies_pandas(self):
@@ -128,6 +132,10 @@ class TestGetFrequencies(unittest.TestCase):
         self.assertEquals(
             _get_frequencies(self.data_pandas, 'question', ['yes', 'no'], 'interviewer', 'b'),
             {'yes' : 0, 'no' : 2})
+        self.assertEquals(
+            _get_frequencies(self.data_pandas, 'question', ['yes'], 'interviewer', 'a'),
+            {'yes' : 3}
+        )
 
 
 class TestInterfaceFunctions(unittest.TestCase):

@@ -265,10 +265,12 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
     if _PANDAS_AVAILABLE and isinstance(data, pd.DataFrame):
         grouped = data[data[agg_col] == agg_unit].groupby(col)
         for name, group in grouped:
-            frequencies[name] = len(group)
+            if name in frequencies:
+                frequencies[name] = len(group)
     else:  # Assumes it is an np.ndarray
         for row in itertools.ifilter(lambda row : row[agg_col] == agg_unit, data):
-            frequencies[row[col]] += 1
+            if row[col] in frequencies:
+                frequencies[row[col]] += 1
     return frequencies
 
 
@@ -294,6 +296,8 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
     outlier_scores = collections.defaultdict(dict)
     for col in cat_cols:
         col_vals = sorted(np.unique(data[col]))
+        for r in null_responses:
+            col_vals.remove(r)
         frequencies = {}
         for agg_unit in agg_units:
             frequencies[agg_unit] = _get_frequencies(data, col, col_vals, agg_col, agg_unit)
