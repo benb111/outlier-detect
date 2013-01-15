@@ -277,14 +277,16 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
     if _PANDAS_AVAILABLE and isinstance(data, pd.DataFrame):
         grouped = data[data[agg_col] == agg_unit].groupby(col)
         for name, group in grouped:
-            frequencies[name] = len(group)
+            if name in frequencies:
+                frequencies[name] = len(group)
     else:  # Assumes it is an np.ndarray
         for row in itertools.ifilter(lambda row : row[agg_col] == agg_unit, data):
-            frequencies[row[col]] += 1
+            if row[col] in frequencies:
+                frequencies[row[col]] += 1
     return frequencies
 
 
-def _run_alg(data, agg_col, cat_cols, model):
+def _run_alg(data, agg_col, cat_cols, model, null_responses):
     """Runs an outlier detection algorithm, taking the model to use as input.
     
     Args:
@@ -293,6 +295,10 @@ def _run_alg(data, agg_col, cat_cols, model):
         cat_cols: list of the categorical column names for which outlier values should be computed.
         model: object implementing a compute_outlier_scores() method as described in the comments
             in the models section.
+        null_answers: list of strings that should be considered to be null responses, i.e.,
+            responses that will not be included in the frequency counts for a column.  This can
+            be useful if, for example, there are response values that mean a question has been
+            skipped.
     
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
@@ -302,6 +308,7 @@ def _run_alg(data, agg_col, cat_cols, model):
     outlier_scores = collections.defaultdict(dict)
     for col in cat_cols:
         col_vals = sorted(np.unique(data[col]))
+        col_vals = [c for c in col_vals if c not in null_responses]
         frequencies = {}
         for agg_unit in agg_units:
             frequencies[agg_unit] = _get_frequencies(data, col, col_vals, agg_col, agg_unit)
@@ -335,7 +342,7 @@ def _compute_color_number(value, max_value, cutoffs=None):
 ########################################## Public functions ########################################
 
 if _STATS_AVAILABLE:
-    def run_mma(data, aggregation_column, categorical_columns):
+    def run_mma(data, aggregation_column, categorical_columns, null_responses=[]):
         """Runs the MMA algorithm (requires scipy module).
         
         Args:
@@ -343,15 +350,23 @@ if _STATS_AVAILABLE:
             aggregation_column: a string giving the name of aggregation unit column.
             categorical_columns: a list of the categorical column names for which outlier values
                 should be computed.
+            null_answers: list of strings that should be considered to be null responses, i.e.,
+                responses that will not be included in the frequency counts for a column.  This can
+                be useful if, for example, there are response values that mean a question has been
+                skipped.
         
         Returns:
             A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
             (mma outlier score).
         """
-        return _run_alg(data, aggregation_column, categorical_columns, MultinomialModel())
+        return _run_alg(data,
+                        aggregation_column,
+                        categorical_columns,
+                        MultinomialModel(),
+                        null_responses)
 
 
-def run_sva(data, aggregation_column, categorical_columns):
+def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
     """Runs the SVA algorithm.
         
     Args:
@@ -359,12 +374,20 @@ def run_sva(data, aggregation_column, categorical_columns):
         aggregation_column: a string giving the name of aggregation unit column.
         categorical_columns: a list of the categorical column names for which outlier values
             should be computed.
+        null_answers: list of strings that should be considered to be null responses, i.e.,
+            responses that will not be included in the frequency counts for a column.  This can
+            be useful if, for example, there are response values that mean a question has been
+            skipped.
         
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
         (sva outlier score).
     """
-    return _run_alg(data, aggregation_column, categorical_columns, SValueModel())
+    return _run_alg(data,
+                    aggregation_column,
+                    categorical_columns,
+                    SValueModel(),
+                    null_responses)
 
 
 def plot_scores(scores, leftpad=1.5, rightpad=1.9, toppad=1.5, bottompad=0.1, scale=1, filename=None, cutoffs=None):

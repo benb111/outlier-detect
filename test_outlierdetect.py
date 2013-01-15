@@ -131,7 +131,38 @@ class TestGetFrequencies(unittest.TestCase):
 
 
 class TestInterfaceFunctions(unittest.TestCase):
+<<<<<<< Local Changes
+<<<<<<< Local Changes
+    """Tests the interface fuctions run_mma and run_sva.
+    
+    Verifies that the answer given by the interface functions is the same as the answer computed
+    by the models.  Also verifies that null responses are ignored."""
+=======
+>>>>>>> External Changes
+=======
+>>>>>>> External Changes
     def setUp(self):
+<<<<<<< Local Changes
+<<<<<<< Local Changes
+        self.data_rec_array = np.array([  # q3 is used to test that null responses are ignored.
+            ('a', 'n', 'n', 'y'),
+            ('a', 'y', 'y', 'n'),
+            ('a', 'n', 'y', '-'),
+            ('a', 'n', 'n', '-'),
+            ('b', 'n', 'y', 'n'),
+            ('b', 'n', 'n', 'y'),
+            ('b', 'y', 'n', 'n'),
+            ('b', 'n', 'n', 'n'),
+            ('b', 'n', 'n', 'n'),
+            ('b', 'y', 'n', '-'),
+            ('c', 'n', 'y', '-'),
+            ('c', 'y', 'y', '-'),
+            ('c', 'n', 'y', 'n'),
+            ('c', 'n', 'n', 'y'),
+            ('c', 'y', 'n', 'y'),
+            ('c', 'n', 'n', '-'),
+        ], dtype=[('interviewer', 'a1'), ('q1', 'a1'), ('q2', 'a1'), ('q3', 'a1')])
+=======
         self.data_rec_array = np.array([
             ('a', 'n', 'n'),
             ('a', 'y', 'y'),
@@ -150,6 +181,27 @@ class TestInterfaceFunctions(unittest.TestCase):
             ('c', 'y', 'n'),
             ('c', 'n', 'n'),
         ], dtype=[('interviewer', 'a1'), ('q1', 'a1'), ('q2', 'a1')])
+>>>>>>> External Changes
+=======
+        self.data_rec_array = np.array([
+            ('a', 'n', 'n'),
+            ('a', 'y', 'y'),
+            ('a', 'n', 'y'),
+            ('a', 'n', 'n'),
+            ('b', 'n', 'y'),
+            ('b', 'n', 'n'),
+            ('b', 'y', 'n'),
+            ('b', 'n', 'n'),
+            ('b', 'n', 'n'),
+            ('b', 'y', 'n'),
+            ('c', 'n', 'y'),
+            ('c', 'y', 'y'),
+            ('c', 'n', 'y'),
+            ('c', 'n', 'n'),
+            ('c', 'y', 'n'),
+            ('c', 'n', 'n'),
+        ], dtype=[('interviewer', 'a1'), ('q1', 'a1'), ('q2', 'a1')])
+>>>>>>> External Changes
         self.data_pandas = pd.DataFrame(self.data_rec_array)
         self.q1_frequencies = {
             'a' : {'y' : 1, 'n' : 3},
