@@ -283,7 +283,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         cat_cols: list of the categorical column names for which outlier values should be computed.
         model: object implementing a compute_outlier_scores() method as described in the comments
             in the models section.
-        null_answers: list of strings that should be considered to be null responses, i.e.,
+        null_responses: list of strings that should be considered to be null responses, i.e.,
             responses that will not be included in the frequency counts for a column.  This can
             be useful if, for example, there are response values that mean a question has been
             skipped.
@@ -317,7 +317,7 @@ if _STATS_AVAILABLE:
             aggregation_column: a string giving the name of aggregation unit column.
             categorical_columns: a list of the categorical column names for which outlier values
                 should be computed.
-            null_answers: list of strings that should be considered to be null responses, i.e.,
+            null_responses: list of strings that should be considered to be null responses, i.e.,
                 responses that will not be included in the frequency counts for a column.  This can
                 be useful if, for example, there are response values that mean a question has been
                 skipped.
@@ -341,7 +341,7 @@ def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
         aggregation_column: a string giving the name of aggregation unit column.
         categorical_columns: a list of the categorical column names for which outlier values
             should be computed.
-        null_answers: list of strings that should be considered to be null responses, i.e.,
+        null_responses: list of strings that should be considered to be null responses, i.e.,
             responses that will not be included in the frequency counts for a column.  This can
             be useful if, for example, there are response values that mean a question has been
             skipped.
