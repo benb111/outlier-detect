@@ -139,45 +139,58 @@ class TestGetFrequencies(unittest.TestCase):
 
 
 class TestInterfaceFunctions(unittest.TestCase):
+    """Verifies that the answer given by the interface functions run_mma and run_sva is the
+    same as the answer computed by the models.  Also verifies that null responses are ignored."""
     def setUp(self):
         self.data_rec_array = np.array([
-            ('a', 'n', 'n'),
-            ('a', 'y', 'y'),
-            ('a', 'n', 'y'),
-            ('a', 'n', 'n'),
-            ('b', 'n', 'y'),
-            ('b', 'n', 'n'),
-            ('b', 'y', 'n'),
-            ('b', 'n', 'n'),
-            ('b', 'n', 'n'),
-            ('b', 'y', 'n'),
-            ('c', 'n', 'y'),
-            ('c', 'y', 'y'),
-            ('c', 'n', 'y'),
-            ('c', 'n', 'n'),
-            ('c', 'y', 'n'),
-            ('c', 'n', 'n'),
-        ], dtype=[('interviewer', 'a1'), ('q1', 'a1'), ('q2', 'a1')])
+            ('a', 'n', 'n', 'y'),
+            ('a', 'y', 'y', 'n'),
+            ('a', 'n', 'y', '-'),
+            ('a', 'n', 'n', '-'),
+            ('b', 'n', 'y', 'n'),
+            ('b', 'n', 'n', 'y'),
+            ('b', 'y', 'n', 'n'),
+            ('b', 'n', 'n', 'n'),
+            ('b', 'n', 'n', 'n'),
+            ('b', 'y', 'n', '-'),
+            ('c', 'n', 'y', '-'),
+            ('c', 'y', 'y', '-'),
+            ('c', 'n', 'y', 'n'),
+            ('c', 'n', 'n', 'y'),
+            ('c', 'y', 'n', 'y'),
+            ('c', 'n', 'n', '-'),
+        ], dtype=[('interviewer', 'a1'), ('q1', 'a1'), ('q2', 'a1'), ('q3', 'a1')])
         self.data_pandas = pd.DataFrame(self.data_rec_array)
-        self.q1_frequencies = {
-            'a' : {'y' : 1, 'n' : 3},
-            'b' : {'y' : 2, 'n' : 4},
-            'c' : {'y' : 2, 'n' : 4},
+        self.interviewers = ['a', 'b', 'c']
+        self.questions = ['q1', 'q2', 'q3']
+        self.frequencies = {
+            'q1' : {
+                'a' : {'y' : 1, 'n' : 3},
+                'b' : {'y' : 2, 'n' : 4},
+                'c' : {'y' : 2, 'n' : 4},                
+            },
+            'q2' : {
+                'a' : {'y' : 2, 'n' : 2},
+                'b' : {'y' : 1, 'n' : 5},
+                'c' : {'y' : 3, 'n' : 3},                
+            },
+            'q3' : {
+                'a' : {'y' : 1, 'n' : 1},
+                'b' : {'y' : 1, 'n' : 4},
+                'c' : {'y' : 2, 'n' : 1},                
+            }
         }
-        self.q2_frequencies = {
-            'a' : {'y' : 2, 'n' : 2},
-            'b' : {'y' : 1, 'n' : 5},
-            'c' : {'y' : 3, 'n' : 3},
-        }
+        self.null_responses = ['-']
 
 
-    def _test_function_using_model(self, f, model, data):
-        outlier_scores = f(data, 'interviewer', ['q1', 'q2'])
-        q1_scores = model.compute_outlier_scores(self.q1_frequencies)
-        q2_scores = model.compute_outlier_scores(self.q2_frequencies)
-        for interviewer in ['a', 'b', 'c']:
-            self.assertEquals(outlier_scores[interviewer]['q1'], q1_scores[interviewer])
-            self.assertEquals(outlier_scores[interviewer]['q2'], q2_scores[interviewer])
+    def _test_function_using_model(self, f, model, data): 
+        computed_outlier_scores = f(data, 'interviewer', self.questions, self.null_responses)
+        verification_outlier_scores = {}
+        for q in self.questions:
+            verification_outlier_scores[q] = model.compute_outlier_scores(self.frequencies[q])
+        for i in self.interviewers:
+            for q in self.questions:
+                self.assertEquals(computed_outlier_scores[i][q], verification_outlier_scores[q][i])
 
 
     if _STATS_AVAILABLE:

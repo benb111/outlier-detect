@@ -296,8 +296,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
     outlier_scores = collections.defaultdict(dict)
     for col in cat_cols:
         col_vals = sorted(np.unique(data[col]))
-        for r in null_responses:
-            col_vals.remove(r)
+        col_vals = [c for c in col_vals if c not in null_responses]
         frequencies = {}
         for agg_unit in agg_units:
             frequencies[agg_unit] = _get_frequencies(data, col, col_vals, agg_col, agg_unit)
