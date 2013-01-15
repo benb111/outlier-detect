@@ -272,7 +272,7 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit):
     return frequencies
 
 
-def _run_alg(data, agg_col, cat_cols, model):
+def _run_alg(data, agg_col, cat_cols, model, null_responses):
     """Runs an outlier detection algorithm, taking the model to use as input.
     
     Args:
@@ -281,6 +281,10 @@ def _run_alg(data, agg_col, cat_cols, model):
         cat_cols: list of the categorical column names for which outlier values should be computed.
         model: object implementing a compute_outlier_scores() method as described in the comments
             in the models section.
+        null_answers: list of strings that should be considered to be null responses, i.e.,
+            responses that will not be included in the frequency counts for a column.  This can
+            be useful if, for example, there are response values that mean a question has been
+            skipped.
     
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
@@ -302,7 +306,7 @@ def _run_alg(data, agg_col, cat_cols, model):
 ########################################## Public functions ########################################
 
 if _STATS_AVAILABLE:
-    def run_mma(data, aggregation_column, categorical_columns):
+    def run_mma(data, aggregation_column, categorical_columns, null_responses=[]):
         """Runs the MMA algorithm (requires scipy module).
         
         Args:
@@ -310,15 +314,23 @@ if _STATS_AVAILABLE:
             aggregation_column: a string giving the name of aggregation unit column.
             categorical_columns: a list of the categorical column names for which outlier values
                 should be computed.
+            null_answers: list of strings that should be considered to be null responses, i.e.,
+                responses that will not be included in the frequency counts for a column.  This can
+                be useful if, for example, there are response values that mean a question has been
+                skipped.
         
         Returns:
             A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
             (mma outlier score).
         """
-        return _run_alg(data, aggregation_column, categorical_columns, MultinomialModel())
+        return _run_alg(data,
+                        aggregation_column,
+                        categorical_columns,
+                        MultinomialModel(),
+                        null_responses)
 
 
-def run_sva(data, aggregation_column, categorical_columns):
+def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
     """Runs the SVA algorithm.
         
     Args:
@@ -326,9 +338,17 @@ def run_sva(data, aggregation_column, categorical_columns):
         aggregation_column: a string giving the name of aggregation unit column.
         categorical_columns: a list of the categorical column names for which outlier values
             should be computed.
+        null_answers: list of strings that should be considered to be null responses, i.e.,
+            responses that will not be included in the frequency counts for a column.  This can
+            be useful if, for example, there are response values that mean a question has been
+            skipped.
         
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
         (sva outlier score).
     """
-    return _run_alg(data, aggregation_column, categorical_columns, SValueModel())
+    return _run_alg(data,
+                    aggregation_column,
+                    categorical_columns,
+                    SValueModel(),
+                    null_responses)
