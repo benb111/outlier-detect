@@ -15,9 +15,8 @@ Science and Engineering, 2012.
 (See http://homes.cs.washington.edu/~birnbaum/pubs.html for PDF versions of
 these papers.)
 
-To use, copy outlierdetect.py into the directory with your code, and import
-outlierdetect.  See the module documentation in outlierdetect.py and example.py
-for more details.
+To install:
+  python setup.py install
 
 Switch to the 'display' branch on git to use experimental visualization code in
 outlierdetect.
