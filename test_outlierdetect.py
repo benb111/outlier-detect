@@ -38,7 +38,7 @@ if _STATS_AVAILABLE:
                 'b' : {'y' : 23, 'n' : 49, '-' : 39},
                 'c' : {'y' : 16, 'n' : 12, '-' : 14},
             }
-            outlier_scores = self.model.compute_outlier_scores(frequencies)
+            outlier_scores= self.model.compute_outlier_scores(frequencies)
             self.assertEquals(sorted(outlier_scores.keys()), ['a', 'b', 'c'])
             self.assertTrue(float_eq(outlier_scores['a'], 1.3593))
             self.assertTrue(float_eq(outlier_scores['b'], 3.2995))
@@ -110,23 +110,31 @@ class TestGetFrequencies(unittest.TestCase):
             'interviewer' : ['a', 'b', 'a', 'a', 'b', 'a'],
             'question'    : ['yes', 'no', 'yes', 'yes', 'no', 'no'],
         })
+        self.agg_to_data = {
+            'a': self.data_pandas[self.data_pandas['interviewer'] == 'a'],
+            'b': self.data_pandas[self.data_pandas['interviewer'] == 'b'],
+        }
 
 
     def test_get_frequencies_rec_array(self):
+        (freq, grouped) = _get_frequencies(self.data_rec_array, 'question', ['yes', 'no'], 'interviewer', 'a', self.agg_to_data)
         self.assertEquals(
-            _get_frequencies(self.data_rec_array, 'question', ['yes', 'no'], 'interviewer', 'a'),
+            freq,
             {'yes' : 3, 'no' : 1})
+        (freq, grouped) = _get_frequencies(self.data_rec_array, 'question', ['yes', 'no'], 'interviewer', 'b', self.agg_to_data)
         self.assertEquals(
-            _get_frequencies(self.data_rec_array, 'question', ['yes', 'no'], 'interviewer', 'b'),
+            freq,
             {'yes' : 0, 'no' : 2})
 
 
     def test_get_frequencies_pandas(self):
+        (freq, grouped) = _get_frequencies(self.data_pandas, 'question', ['yes', 'no'], 'interviewer', 'a', self.agg_to_data)
         self.assertEquals(
-            _get_frequencies(self.data_pandas, 'question', ['yes', 'no'], 'interviewer', 'a'),
+            freq,
             {'yes' : 3, 'no' : 1})
+        (freq, grouped) = _get_frequencies(self.data_pandas, 'question', ['yes', 'no'], 'interviewer', 'b', self.agg_to_data)
         self.assertEquals(
-            _get_frequencies(self.data_pandas, 'question', ['yes', 'no'], 'interviewer', 'b'),
+            freq,
             {'yes' : 0, 'no' : 2})
 
 
@@ -164,7 +172,7 @@ class TestInterfaceFunctions(unittest.TestCase):
 
 
     def _test_function_using_model(self, f, model, data):
-        outlier_scores = f(data, 'interviewer', ['q1', 'q2'])
+        (outlier_scores, agg_col_to_data) = f(data, 'interviewer', ['q1', 'q2'])
         q1_scores = model.compute_outlier_scores(self.q1_frequencies)
         q2_scores = model.compute_outlier_scores(self.q2_frequencies)
         for interviewer in ['a', 'b', 'c']:
