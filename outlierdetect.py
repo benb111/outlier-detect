@@ -97,7 +97,6 @@ if _STATS_AVAILABLE:
     class MultinomialModel:
         """Model implementing MMA.  Requries scipy module."""
 
-        # @profile
         def compute_outlier_scores(self, frequencies):
             """Computes the SVA outlier scores fo the given frequencies dictionary.
         
@@ -113,12 +112,12 @@ if _STATS_AVAILABLE:
             rng = frequencies[frequencies.keys()[0]].keys()
             outlier_scores = {}
             for agg_unit in frequencies.keys():
-                aaa = self._sum_frequencies(agg_unit, frequencies)
-                if(sum(aaa.values()) == 0):
+                summed_freq = self._sum_frequencies(agg_unit, frequencies)
+                if(sum(summed_freq.values()) == 0):
                     outlier_scores[agg_unit] = 0
                 else:
                     expected_counts = _normalize_counts(
-                        aaa,
+                        summed_freq,
                         val=sum([frequencies[agg_unit][r] for r in rng]))
                     x2 = self._compute_x2_statistic(expected_counts, frequencies[agg_unit])
                     # logsf gives the log of the survival function (1 - cdf).
@@ -147,7 +146,6 @@ if _STATS_AVAILABLE:
             return sum([(actual[r] - expected[r])**2 / max(float(expected[r]), 1.0)
                 for r in expected.keys()])
 
-        # @profile
         def _sum_frequencies(self, agg_unit, frequencies):
             """Sums frequencies for each aggregation unit except the given one.
             
@@ -175,19 +173,6 @@ if _STATS_AVAILABLE:
                     all_frequencies[r] += frequencies[other_agg_unit][r]        
             return all_frequencies
 
-    class MultinomialModel_v2(MultinomialModel):
-        def compute_outlier_scores(self, frequencies):
-            outlier_scores = MultinomialModel().compute_outlier_scores(frequencies)
-            raw_scores = np.array([outlier_scores[k] for k in outlier_scores.keys()])
-            q_mean = raw_scores.mean()
-            q_std = raw_scores.std()
-            
-            output = {}
-            for (aggr_unit, score) in outlier_scores.items():
-                output[aggr_unit] = (score - q_mean) / q_std
-            
-            return output
-        
 
 class SValueModel:
     """Model implementing SVA."""
@@ -211,7 +196,6 @@ class SValueModel:
         for j in frequencies.keys():
             # If j doesn't have any answers for given question, remove j and
             # assign outlier score of 0.
-            # TODO: test this change and update official version of outlierdetect
             if (sum(frequencies[j].values()) == 0):
                 del frequencies[j]
                 outlier_values[j] = 0
@@ -265,7 +249,6 @@ def _normalize_counts(counts, val=1):
         dictionary of the same form as counts, except where the counts have been normalized to sum
         to val.
     """
-    # n = sum([counts[k] for k in counts.keys()])
     n = sum(counts.values())
     frequencies = {}
     for r in counts.keys():
@@ -273,7 +256,6 @@ def _normalize_counts(counts, val=1):
     return frequencies
 
 
-# @profile
 def _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data):
     """Computes a frequencies dictionary for a given column and aggregation unit.
     
@@ -289,7 +271,6 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data):
         A dictionary that maps (column value) -> (number of times agg_unit has column value in
         data).
     """
-    # grouped = None
     interesting_data = None
     frequencies = {}
     for col_val in col_vals:
@@ -297,13 +278,6 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data):
         # We can't just use collections.Counter() because frequencies.keys() is used to determine
         # the range of possible values in other functions.
     if _PANDAS_AVAILABLE and isinstance(data, pd.DataFrame):
-        # grouped = data[data[agg_col] == agg_unit].groupby(col)
-
-        # Friday update:
-        # grouped = agg_to_data[agg_unit].groupby(col)
-        # for name, group in grouped:
-        #     if name in frequencies:
-        #         frequencies[name] = len(group)
         interesting_data = agg_to_data[agg_unit][col]
         for name in interesting_data:
             if name in frequencies:
@@ -312,10 +286,8 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data):
         for row in itertools.ifilter(lambda row : row[agg_col] == agg_unit, data):
             if row[col] in frequencies:
                 frequencies[row[col]] += 1
-    # return (frequencies, grouped)
-    return (frequencies, interesting_data)
+    return frequencies, interesting_data
 
-# @profile
 def _run_alg(data, agg_col, cat_cols, model, null_responses):
     """Runs an outlier detection algorithm, taking the model to use as input.
     
@@ -334,13 +306,6 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
         (outlier score).
     """
-    # d = data[agg_col]
-    # e = set(d)
-    # d = np.unique(d)
-    # print len(e), len(d)
-    # print sorted(e),d
-    # agg_units = sorted(d)
-    # agg_units = sorted(e)
     agg_units = sorted(set(data[agg_col]))
     outlier_scores = collections.defaultdict(dict)
     agg_to_data = {}
@@ -352,19 +317,16 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         agg_col_to_data[agg_unit] = {}
         
     for col in cat_cols:
-        # c = data[col]
-        # c = np.unique(c)
-        # col_vals = sorted(c)
         col_vals = sorted(set(data[col]))
         col_vals = [c for c in col_vals if c not in null_responses]
         frequencies = {}
         for agg_unit in agg_units:
-            (frequencies[agg_unit],grouped) = _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data)
+            frequencies[agg_unit],grouped = _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data)
             agg_col_to_data[agg_unit][col] = grouped
         outlier_scores_for_col = model.compute_outlier_scores(frequencies)
         for agg_unit in agg_units:
             outlier_scores[agg_unit][col] = outlier_scores_for_col[agg_unit]
-    return (outlier_scores, agg_col_to_data)
+    return outlier_scores, agg_col_to_data
 
 
 ########################################## Public functions ########################################
@@ -391,29 +353,6 @@ if _STATS_AVAILABLE:
                         aggregation_column,
                         categorical_columns,
                         MultinomialModel(),
-                        null_responses)
-
-    def run_mma_v2(data, aggregation_column, categorical_columns, null_responses=[]):
-        """Runs the MMA algorithm (requires scipy module).
-        
-        Args:
-            data: numpy.recarray or pandas.DataFrame containing the data.
-            aggregation_column: a string giving the name of aggregation unit column.
-            categorical_columns: a list of the categorical column names for which outlier values
-                should be computed.
-            null_responses: list of strings that should be considered to be null responses, i.e.,
-                responses that will not be included in the frequency counts for a column.  This can
-                be useful if, for example, there are response values that mean a question has been
-                skipped.
-        
-        Returns:
-            A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-            (mma outlier score).
-        """
-        return _run_alg(data,
-                        aggregation_column,
-                        categorical_columns,
-                        MultinomialModel_v2(),
                         null_responses)
 
 def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
