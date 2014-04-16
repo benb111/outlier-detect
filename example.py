@@ -29,11 +29,11 @@ if __name__ == '__main__':
     # data = mlab.csv2rec(DATA_FILE)  # Uncomment to load as numpy.recarray.
 
     # Compute SVA outlier scores.
-    sva_scores = outlierdetect.run_sva(data, 'interviewer_id', ['cough', 'fever'])
+    (sva_scores, agg_col_to_data) = outlierdetect.run_sva(data, 'interviewer_id', ['cough', 'fever'])
     print "SVA outlier scores"
     print_scores(sva_scores)
 
     # Compute MMA outlier scores.  Will work only if scipy is installed.
-    mma_scores = outlierdetect.run_mma(data, 'interviewer_id', ['cough', 'fever'])
+    (mma_scores, agg_col_to_data) = outlierdetect.run_mma(data, 'interviewer_id', ['cough', 'fever'])
     print "\nMMA outlier scores"
     print_scores(mma_scores)
