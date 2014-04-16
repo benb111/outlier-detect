@@ -317,11 +317,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         agg_col_to_data[agg_unit] = {}
         
     for col in cat_cols:
-<<<<<<< HEAD:outlierdetect/outlierdetect.py
-        col_vals = sorted(np.unique(data[col]))
-=======
         col_vals = sorted(set(data[col]))
->>>>>>> be48fe083d9b97771e4a2d1572aab2e11296368d:outlierdetect.py
         col_vals = [c for c in col_vals if c not in null_responses]
         frequencies = {}
         for agg_unit in agg_units:
@@ -359,10 +355,6 @@ if _STATS_AVAILABLE:
                         MultinomialModel(),
                         null_responses)
 
-<<<<<<< HEAD:outlierdetect/outlierdetect.py
-
-=======
->>>>>>> be48fe083d9b97771e4a2d1572aab2e11296368d:outlierdetect.py
 def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
     """Runs the SVA algorithm.
         
@@ -385,7 +377,3 @@ def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
                     categorical_columns,
                     SValueModel(),
                     null_responses)
-<<<<<<< HEAD:outlierdetect/outlierdetect.py
-=======
-
->>>>>>> be48fe083d9b97771e4a2d1572aab2e11296368d:outlierdetect.py
