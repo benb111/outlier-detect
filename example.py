@@ -35,6 +35,7 @@ if __name__ == '__main__':
     print_scores(sva_scores)
 
     # Compute MMA outlier scores.  Will work only if scipy is installed.
-    (mma_scores, agg_col_to_data) = outlierdetect.run_mma(data, 'interviewer_id', ['cough', 'fever'])
-    print("\nMMA outlier scores")
-    print_scores(mma_scores)
+    if hasattr(outlierdetect, 'run_mma'):
+        (mma_scores, agg_col_to_data) = outlierdetect.run_mma(data, 'interviewer_id', ['cough', 'fever'])
+        print("\nMMA outlier scores")
+        print_scores(mma_scores)
