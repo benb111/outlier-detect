@@ -12,5 +12,5 @@
 # or implied.  See the License for the specific language governing permissions and limitations
 # under the License.
 
-
-from outlierdetect import run_sva, run_mma, __doc__
+# Leading to a circular import, so commented out.
+# from outlierdetect import run_sva, run_mma, __doc__
