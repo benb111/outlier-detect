@@ -11,7 +11,7 @@ Example use of outlierdetect.py module.
 
 from __future__ import print_function
 from matplotlib import mlab
-from outlierdetect import outlierdetect
+import outlierdetect
 import pandas as pd
 
 
