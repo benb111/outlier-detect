@@ -109,7 +109,7 @@ if _STATS_AVAILABLE:
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
-            rng = frequencies[frequencies.keys()[0]].keys()
+            rng = frequencies[list(frequencies.keys())[0]].keys()
             outlier_scores = {}
             for agg_unit in frequencies.keys():
                 summed_freq = self._sum_frequencies(agg_unit, frequencies)
@@ -191,7 +191,7 @@ class SValueModel:
         if (len(frequencies.keys()) < 2):
             raise Exception("There must be at least 2 aggregation units.")
         outlier_values = {}
-        rng = frequencies[frequencies.keys()[0]].keys()
+        rng = frequencies[list(frequencies.keys())[0]].keys()
         normalized_frequencies = {}
         for j in frequencies.keys():
             # If j doesn't have any answers for given question, remove j and
@@ -306,7 +306,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
         (outlier score).
     """
-    agg_units = sorted(set(data[agg_col]))
+    agg_units = sorted(set(data[agg_col]), key=lambda x: (str(type(x)), x))
     outlier_scores = collections.defaultdict(dict)
     agg_to_data = {}
     agg_col_to_data = {}
@@ -317,7 +317,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         agg_col_to_data[agg_unit] = {}
         
     for col in cat_cols:
-        col_vals = sorted(set(data[col]))
+        col_vals = sorted(set(data[col]), key=lambda x: (str(type(x)), x))
         col_vals = [c for c in col_vals if c not in null_responses]
         frequencies = {}
         for agg_unit in agg_units:
