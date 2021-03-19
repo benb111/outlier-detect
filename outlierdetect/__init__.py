@@ -12,5 +12,9 @@
 # or implied.  See the License for the specific language governing permissions and limitations
 # under the License.
 
-
-from outlierdetect import run_sva, run_mma, __doc__
+from .outlierdetect import run_sva, __doc__
+# run_mma will be missing when stats are not available
+try:
+    from .outlierdetect import run_mma
+except ImportError:
+    pass

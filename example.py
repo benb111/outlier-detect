@@ -9,6 +9,7 @@ benjamin.birnbaum@gmail.com
 Example use of outlierdetect.py module.
 """
 
+from __future__ import print_function
 from matplotlib import mlab
 import outlierdetect
 import pandas as pd
@@ -19,9 +20,9 @@ DATA_FILE = 'example_data.csv'
 
 def print_scores(scores):
     for interviewer in scores.keys():
-        print "%s" % interviewer
+        print("%s" % interviewer)
         for column in scores[interviewer].keys():
-            print "\t%s:\t%.2f" % (column, scores[interviewer][column])
+            print("\t%s:\t%.2f" % (column, scores[interviewer][column]))
     
 
 if __name__ == '__main__':
@@ -30,10 +31,11 @@ if __name__ == '__main__':
 
     # Compute SVA outlier scores.
     (sva_scores, agg_col_to_data) = outlierdetect.run_sva(data, 'interviewer_id', ['cough', 'fever'])
-    print "SVA outlier scores"
+    print("SVA outlier scores")
     print_scores(sva_scores)
 
     # Compute MMA outlier scores.  Will work only if scipy is installed.
-    (mma_scores, agg_col_to_data) = outlierdetect.run_mma(data, 'interviewer_id', ['cough', 'fever'])
-    print "\nMMA outlier scores"
-    print_scores(mma_scores)
+    if hasattr(outlierdetect, 'run_mma'):
+        (mma_scores, agg_col_to_data) = outlierdetect.run_mma(data, 'interviewer_id', ['cough', 'fever'])
+        print("\nMMA outlier scores")
+        print_scores(mma_scores)
