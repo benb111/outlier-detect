@@ -111,7 +111,7 @@ if _STATS_AVAILABLE:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
             rng = frequencies[list(frequencies.keys())[0]].keys()
             outlier_scores = {}
-            for agg_unit in frequencies.keys():
+            for agg_unit in list(frequencies):
                 summed_freq = self._sum_frequencies(agg_unit, frequencies)
                 if(sum(summed_freq.values()) == 0):
                     outlier_scores[agg_unit] = 0
@@ -144,7 +144,7 @@ if _STATS_AVAILABLE:
             if abs(num_observations - sum([expected[r] for r in rng])) > _FLOAT_EQ_DELTA:
                 raise Exception("Frequencies must sum to the same value.")
             return sum([(actual[r] - expected[r])**2 / max(float(expected[r]), 1.0)
-                for r in expected.keys()])
+                for r in list(expected)])
 
         def _sum_frequencies(self, agg_unit, frequencies):
             """Sums frequencies for each aggregation unit except the given one.
@@ -166,7 +166,7 @@ if _STATS_AVAILABLE:
             all_frequencies = {}
             for r in rng:
                 all_frequencies[r] = 0
-            for other_agg_unit in frequencies.keys():
+            for other_agg_unit in list(frequencies):
                 if other_agg_unit == agg_unit:
                     continue
                 for r in rng:
@@ -193,7 +193,7 @@ class SValueModel:
         outlier_values = {}
         rng = frequencies[list(frequencies.keys())[0]].keys()
         normalized_frequencies = {}
-        for j in frequencies.keys():
+        for j in list(frequencies):
             # If j doesn't have any answers for given question, remove j and
             # assign outlier score of 0.
             if (sum(frequencies[j].values()) == 0):
@@ -204,8 +204,8 @@ class SValueModel:
         medians = {}    
         for r in rng:
             medians[r] = np.median([normalized_frequencies[j][r]
-                for j in normalized_frequencies.keys()])
-        for j in frequencies.keys():
+                for j in list(normalized_frequencies)])
+        for j in list(frequencies):
             outlier_values[j] = 0
             for r in rng:
                 outlier_values[j] += abs(normalized_frequencies[j][r] - medians[r])
@@ -224,14 +224,14 @@ class SValueModel:
             dictionary of the same form as value_dict, where the values are normalized as described
             above.
         """
-        median = np.median([value_dict[i] for i in value_dict.keys()])
+        median = np.median([value_dict[i] for i in list(value_dict)])
         n = len(value_dict.keys())
         if median < 1.0 / float(n):
             divisor = 1.0 / float(n)
         else:
             divisor = median
         return_dict = {}
-        for i in value_dict.keys():
+        for i in list(value_dict):
             return_dict[i] = float(value_dict[i]) / float(divisor)
         return return_dict
 
@@ -251,7 +251,7 @@ def _normalize_counts(counts, val=1):
     """
     n = sum(counts.values())
     frequencies = {}
-    for r in counts.keys():
+    for r in list(counts):
         frequencies[r] = val * float(counts[r]) / float(n)
     return frequencies
 
