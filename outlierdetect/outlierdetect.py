@@ -99,11 +99,11 @@ if _STATS_AVAILABLE:
 
         def compute_outlier_scores(self, frequencies):
             """Computes the SVA outlier scores fo the given frequencies dictionary.
-        
+
             Args:
                 frequencies: dictionary of dictionaries, mapping (aggregation unit) -> (value) ->
                     (number of times aggregation unit reported value).
-            
+
             Returns:
                 dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
             """
@@ -111,8 +111,10 @@ if _STATS_AVAILABLE:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
             rng = frequencies[list(frequencies.keys())[0]].keys()
             outlier_scores = {}
+            expected_frequencies = {}
             for agg_unit in list(frequencies.keys()):
                 summed_freq = self._sum_frequencies(agg_unit, frequencies)
+                expected_frequencies[agg_unit] = summed_freq
                 if(sum(summed_freq.values()) == 0):
                     outlier_scores[agg_unit] = 0
                 else:
@@ -122,7 +124,7 @@ if _STATS_AVAILABLE:
                     x2 = self._compute_x2_statistic(expected_counts, frequencies[agg_unit])
                     # logsf gives the log of the survival function (1 - cdf).
                     outlier_scores[agg_unit] = -stats.chi2.logsf(x2, len(rng) - 1)
-            return outlier_scores
+            return outlier_scores, expected_frequencies
 
 
         def _compute_x2_statistic(self, expected, actual):
@@ -238,13 +240,14 @@ class SValueModel:
 
 ########################################## Helper functions ########################################
 
-def _normalize_counts(counts, val=1):
+def _normalize_counts(counts, val=1, percent_format=False):
     """Normalizes a dictionary of counts, such as those returned by _get_frequencies().
 
     Args:
         counts: a dictionary mapping value -> count.
         val: the number the counts should add up to.
-    
+        percent_format: boolean that determines if the frequencies are converted to a cleaner, rounded percent format.
+
     Returns:
         dictionary of the same form as counts, except where the counts have been normalized to sum
         to val.
@@ -252,7 +255,8 @@ def _normalize_counts(counts, val=1):
     n = sum(counts.values())
     frequencies = {}
     for r in list(counts.keys()):
-        frequencies[r] = val * float(counts[r]) / float(n)
+        freq = val * float(counts[r]) / float(n)
+        frequencies[r] = rounded(freq) if percent_format else frequencies[r] = freq
     return frequencies
 
 
@@ -323,9 +327,11 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         for agg_unit in agg_units:
             frequencies[agg_unit],grouped = _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data)
             agg_col_to_data[agg_unit][col] = grouped
-        outlier_scores_for_col = model.compute_outlier_scores(frequencies)
+        outlier_scores_for_col, expected_frequencies_for_col = model.compute_outlier_scores(frequencies)
         for agg_unit in agg_units:
-            outlier_scores[agg_unit][col] = outlier_scores_for_col[agg_unit]
+            outlier_scores[agg_unit][col] = {'score': outlier_scores_for_col[agg_unit],
+                                             'observed_freq': frequencies[agg_unit],
+                                             'expected_freq': expected_frequencies_for_col[agg_unit]}
     return outlier_scores, agg_col_to_data
 
 
