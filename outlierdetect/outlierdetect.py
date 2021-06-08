@@ -240,13 +240,12 @@ class SValueModel:
 
 ########################################## Helper functions ########################################
 
-def _normalize_counts(counts, val=1, percent_format=False):
+def _normalize_counts(counts, val=1):
     """Normalizes a dictionary of counts, such as those returned by _get_frequencies().
 
     Args:
         counts: a dictionary mapping value -> count.
         val: the number the counts should add up to.
-        percent_format: boolean that determines if the frequencies are converted to a cleaner, rounded percent format.
 
     Returns:
         dictionary of the same form as counts, except where the counts have been normalized to sum
@@ -255,8 +254,7 @@ def _normalize_counts(counts, val=1, percent_format=False):
     n = sum(counts.values())
     frequencies = {}
     for r in list(counts.keys()):
-        freq = val * float(counts[r]) / float(n)
-        frequencies[r] = rounded(freq) if percent_format else frequencies[r] = freq
+        frequencies[r] = val * float(counts[r]) / float(n)
     return frequencies
 
 
