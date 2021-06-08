@@ -306,7 +306,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
     
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-        (outlier score).
+        ({outlier score, observed frequencies, expected frequencies}).
     """
     agg_units = sorted(set(data[agg_col]), key=lambda x: (str(type(x)), x))
     outlier_scores = collections.defaultdict(dict)
@@ -351,7 +351,7 @@ if _STATS_AVAILABLE:
         
         Returns:
             A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-            (mma outlier score).
+            ({mma outlier score, observed frequencies, expected frequencies}).
         """
         return _run_alg(data,
                         aggregation_column,
@@ -374,7 +374,7 @@ def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
         
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-        (sva outlier score).
+        ({sva outlier score, observed frequencies, expected frequencies}.
     """
     return _run_alg(data,
                     aggregation_column,
