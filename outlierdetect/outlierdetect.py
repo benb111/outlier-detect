@@ -105,7 +105,8 @@ if _STATS_AVAILABLE:
                     (number of times aggregation unit reported value).
 
             Returns:
-                dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+                dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit)
+                dictionaty of value count for each agg_unit
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
@@ -211,7 +212,7 @@ class SValueModel:
             outlier_values[j] = 0
             for r in rng:
                 outlier_values[j] += abs(normalized_frequencies[j][r] - medians[r])
-        return self._normalize(outlier_values)
+        return self._normalize(outlier_values), normalized_frequencies
     
     
     def _normalize(self, value_dict):
