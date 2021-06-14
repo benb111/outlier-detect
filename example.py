@@ -20,13 +20,15 @@ DATA_FILE = 'example_data.csv'
 
 def print_scores(scores):
     for interviewer in scores.keys():
+
+        print("%s" % interviewer)
+
         for column in scores[interviewer].keys():
             
             score = scores[interviewer][column]['score']
             observed_frequencies = scores[interviewer][column]['observed_freq']
             expected_frequencies = scores[interviewer][column]['expected_freq']
 
-            print("%s" % interviewer)
             print("%s" % observed_frequencies)
             print("%s" % expected_frequencies)
 

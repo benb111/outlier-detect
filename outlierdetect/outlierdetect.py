@@ -105,8 +105,8 @@ if _STATS_AVAILABLE:
                     (number of times aggregation unit reported value).
 
             Returns:
-                dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit)
-                dictionaty of value count for each agg_unit
+                - dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+                - dictionary of value counts (aggregation unit) -> (answer_choice: count, ...).
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
@@ -189,7 +189,8 @@ class SValueModel:
                 (number of times aggregation unit reported value).
             
         Returns:
-            dictionary mapping (aggregation unit) -> (SVA outlier score for aggregation unit).
+            - dictionary mapping (aggregation unit) -> (SVA outlier score for aggregation unit).
+            - dictionary of normalized value counts (aggregation unit) -> (answer_choice: count, ...).
         """
         if (len(frequencies.keys()) < 2):
             raise Exception("There must be at least 2 aggregation units.")
