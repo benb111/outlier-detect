@@ -106,7 +106,7 @@ if _STATS_AVAILABLE:
 
             Returns:
                 - dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
-                - dictionary of value counts (aggregation unit) -> (answer_choice: count, ...).
+                - dictionary mapping (aggregation unit) ->  return from _sum_frequencies: (a dictionary mapping (value) -> (number of times all aggregation units apart from agg_unit reported this value)).
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
@@ -190,7 +190,7 @@ class SValueModel:
             
         Returns:
             - dictionary mapping (aggregation unit) -> (SVA outlier score for aggregation unit).
-            - dictionary of normalized value counts (aggregation unit) -> (answer_choice: count, ...).
+            - dictionary mapping (aggregation unit) ->  return from _normalize_counts: (a dictionary mapping (value) -> (normalized number of times all aggregation units apart from agg_unit reported this value)).
         """
         if (len(frequencies.keys()) < 2):
             raise Exception("There must be at least 2 aggregation units.")
@@ -269,7 +269,6 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data):
         col_vals: a list giving the range of possible values in the column.
         agg_col: string giving the name of the aggregation unit column for the data.
         agg_unit: string giving the aggregation unit to compute frequencies for.
-
         agg_to_data: a dictionary of aggregation values pointing to subsets of data
     Returns:
         A dictionary that maps (column value) -> (number of times agg_unit has column value in
