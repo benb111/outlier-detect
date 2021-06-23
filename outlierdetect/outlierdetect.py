@@ -99,20 +99,23 @@ if _STATS_AVAILABLE:
 
         def compute_outlier_scores(self, frequencies):
             """Computes the SVA outlier scores fo the given frequencies dictionary.
-        
+
             Args:
                 frequencies: dictionary of dictionaries, mapping (aggregation unit) -> (value) ->
                     (number of times aggregation unit reported value).
-            
+
             Returns:
-                dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+                - dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+                - dictionary mapping (aggregation unit) ->  return from _sum_frequencies: (a dictionary mapping (value) -> (number of times all aggregation units apart from agg_unit reported this value)).
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
             rng = frequencies[list(frequencies.keys())[0]].keys()
             outlier_scores = {}
+            expected_frequencies = {}
             for agg_unit in list(frequencies.keys()):
                 summed_freq = self._sum_frequencies(agg_unit, frequencies)
+                expected_frequencies[agg_unit] = summed_freq
                 if(sum(summed_freq.values()) == 0):
                     outlier_scores[agg_unit] = 0
                 else:
@@ -122,7 +125,7 @@ if _STATS_AVAILABLE:
                     x2 = self._compute_x2_statistic(expected_counts, frequencies[agg_unit])
                     # logsf gives the log of the survival function (1 - cdf).
                     outlier_scores[agg_unit] = -stats.chi2.logsf(x2, len(rng) - 1)
-            return outlier_scores
+            return outlier_scores, expected_frequencies
 
 
         def _compute_x2_statistic(self, expected, actual):
@@ -186,7 +189,8 @@ class SValueModel:
                 (number of times aggregation unit reported value).
             
         Returns:
-            dictionary mapping (aggregation unit) -> (SVA outlier score for aggregation unit).
+            - dictionary mapping (aggregation unit) -> (SVA outlier score for aggregation unit).
+            - dictionary mapping (aggregation unit) ->  return from _normalize_counts: (a dictionary mapping (value) -> (normalized number of times all aggregation units apart from agg_unit reported this value)).
         """
         if (len(frequencies.keys()) < 2):
             raise Exception("There must be at least 2 aggregation units.")
@@ -209,7 +213,7 @@ class SValueModel:
             outlier_values[j] = 0
             for r in rng:
                 outlier_values[j] += abs(normalized_frequencies[j][r] - medians[r])
-        return self._normalize(outlier_values)
+        return self._normalize(outlier_values), normalized_frequencies
     
     
     def _normalize(self, value_dict):
@@ -244,7 +248,7 @@ def _normalize_counts(counts, val=1):
     Args:
         counts: a dictionary mapping value -> count.
         val: the number the counts should add up to.
-    
+
     Returns:
         dictionary of the same form as counts, except where the counts have been normalized to sum
         to val.
@@ -265,7 +269,6 @@ def _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data):
         col_vals: a list giving the range of possible values in the column.
         agg_col: string giving the name of the aggregation unit column for the data.
         agg_unit: string giving the aggregation unit to compute frequencies for.
-
         agg_to_data: a dictionary of aggregation values pointing to subsets of data
     Returns:
         A dictionary that maps (column value) -> (number of times agg_unit has column value in
@@ -304,7 +307,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
     
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-        (outlier score).
+        ({outlier score, observed frequencies, expected frequencies}).
     """
     agg_units = sorted(set(data[agg_col]), key=lambda x: (str(type(x)), x))
     outlier_scores = collections.defaultdict(dict)
@@ -323,9 +326,11 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         for agg_unit in agg_units:
             frequencies[agg_unit],grouped = _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data)
             agg_col_to_data[agg_unit][col] = grouped
-        outlier_scores_for_col = model.compute_outlier_scores(frequencies)
+        outlier_scores_for_col, expected_frequencies_for_col = model.compute_outlier_scores(frequencies)
         for agg_unit in agg_units:
-            outlier_scores[agg_unit][col] = outlier_scores_for_col[agg_unit]
+            outlier_scores[agg_unit][col] = {'score': outlier_scores_for_col[agg_unit],
+                                             'observed_freq': frequencies[agg_unit],
+                                             'expected_freq': expected_frequencies_for_col[agg_unit]}
     return outlier_scores, agg_col_to_data
 
 
@@ -347,7 +352,7 @@ if _STATS_AVAILABLE:
         
         Returns:
             A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-            (mma outlier score).
+            ({mma outlier score, observed frequencies, expected frequencies}).
         """
         return _run_alg(data,
                         aggregation_column,
@@ -370,7 +375,7 @@ def run_sva(data, aggregation_column, categorical_columns, null_responses=[]):
         
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-        (sva outlier score).
+        ({sva outlier score, observed frequencies, expected frequencies}.
     """
     return _run_alg(data,
                     aggregation_column,
