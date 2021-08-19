@@ -28,18 +28,20 @@ def print_scores(scores):
             score = scores[interviewer][column]['score']
             observed_frequencies = scores[interviewer][column]['observed_freq']
             expected_frequencies = scores[interviewer][column]['expected_freq']
+            p_value = scores[interviewer][column]['p_value']
 
-            print("%s" % observed_frequencies)
-            print("%s" % expected_frequencies)
+            print("Observed Frequencies: %s" % observed_frequencies)
+            print("Expected Frequencies: %s" % expected_frequencies)
+            print("P-Value: %d" % p_value)
 
 if __name__ == '__main__':
     data = pd.read_csv(DATA_FILE)  # Uncomment to load as pandas.DataFrame.
     # data = mlab.csv2rec(DATA_FILE)  # Uncomment to load as numpy.recarray.
 
     # Compute SVA outlier scores.
-    (sva_scores, _) = outlierdetect.run_sva(data, 'interviewer_id', ['cough', 'fever'])
-    print("SVA outlier scores")
-    print_scores(sva_scores)
+    #(sva_scores, _) = outlierdetect.run_sva(data, 'interviewer_id', ['cough', 'fever'])
+    #print("SVA outlier scores")
+    #print_scores(sva_scores)
 
     # Compute MMA outlier scores.  Will work only if scipy is installed.
     if hasattr(outlierdetect, 'run_mma'):

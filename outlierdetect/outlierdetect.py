@@ -105,7 +105,9 @@ if _STATS_AVAILABLE:
                     (number of times aggregation unit reported value).
 
             Returns:
-                dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+                - dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
+                - dictionary mapping (aggregation unit) ->  return from _sum_frequencies: (a dictionary mapping (value) -> (number of times all aggregation units apart from agg_unit reported this value)).
+                - dictionary mapping (aggregation unit) -> (P value for aggregation unit).
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
@@ -118,7 +120,7 @@ if _STATS_AVAILABLE:
                 expected_frequencies[agg_unit] = summed_freq
                 if(sum(summed_freq.values()) == 0):
                     outlier_scores[agg_unit] = 0
-                    p_values[agg_unit] = -1
+                    p_values[agg_unit] = 1
                 else:
                     expected_counts = _normalize_counts(
                         summed_freq,
@@ -139,8 +141,7 @@ if _STATS_AVAILABLE:
                     (with the same range) giving the actual distribution.
 
             Returns:
-                the X^2 statistic for the actual frequencies, given the expected frequencies,
-                the p-value of the result.
+                the X^2 statistic for the actual frequencies, given the expected frequencies, and the p-value of the result.
             """
             rng = expected.keys()
             if actual.keys() != rng:
