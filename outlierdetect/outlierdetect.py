@@ -107,38 +107,41 @@ if _STATS_AVAILABLE:
             Returns:
                 - dictionary mapping (aggregation unit) -> (MMA outlier score for aggregation unit).
                 - dictionary mapping (aggregation unit) ->  return from _sum_frequencies: (a dictionary mapping (value) -> (number of times all aggregation units apart from agg_unit reported this value)).
+                - dictionary mapping (aggregation unit) -> (P value for aggregation unit).
             """
             if len(frequencies.keys()) < 2:
                 raise Exception("There must be at least 2 aggregation units. " + str(frequencies.keys()))
             rng = frequencies[list(frequencies.keys())[0]].keys()
             outlier_scores = {}
             expected_frequencies = {}
+            p_values = {}
             for agg_unit in list(frequencies.keys()):
                 summed_freq = self._sum_frequencies(agg_unit, frequencies)
                 expected_frequencies[agg_unit] = summed_freq
                 if(sum(summed_freq.values()) == 0):
                     outlier_scores[agg_unit] = 0
+                    p_values[agg_unit] = 1
                 else:
                     expected_counts = _normalize_counts(
                         summed_freq,
                         val=sum([frequencies[agg_unit][r] for r in rng]))
-                    x2 = self._compute_x2_statistic(expected_counts, frequencies[agg_unit])
+                    x2, p_value = self._compute_x2_statistic(expected_counts, frequencies[agg_unit])
                     # logsf gives the log of the survival function (1 - cdf).
                     outlier_scores[agg_unit] = -stats.chi2.logsf(x2, len(rng) - 1)
-            return outlier_scores, expected_frequencies
+                    p_values[agg_unit] = p_value
+            return outlier_scores, expected_frequencies, p_values
 
 
         def _compute_x2_statistic(self, expected, actual):
             """Computes the X^2 statistic for observed frequencies.
-
             Args:
                 expected: a dictionary giving the expected frequencies, e.g.,
                     {'y' : 13.2, 'n' : 17.2}
                 actual: a dictionary in the same format as the expected dictionary
                     (with the same range) giving the actual distribution.
-            
+
             Returns:
-                the X^2 statistic for the actual frequencies, given the expected frequencies.
+                the X^2 statistic for the actual frequencies, given the expected frequencies, and the p-value of the result.
             """
             rng = expected.keys()
             if actual.keys() != rng:
@@ -146,8 +149,11 @@ if _STATS_AVAILABLE:
             num_observations = sum([actual[r] for r in rng])
             if abs(num_observations - sum([expected[r] for r in rng])) > _FLOAT_EQ_DELTA:
                 raise Exception("Frequencies must sum to the same value.")
-            return sum([(actual[r] - expected[r])**2 / max(float(expected[r]), 1.0)
+            chi_squared_stat = sum([(actual[r] - expected[r])**2 / max(float(expected[r]), 1.0)
                 for r in rng])
+            p_value = 1 - stats.chi2.cdf(x=chi_squared_stat,  # Find the p-value
+                                df=len(rng))
+            return chi_squared_stat, p_value
 
         def _sum_frequencies(self, agg_unit, frequencies):
             """Sums frequencies for each aggregation unit except the given one.
@@ -307,7 +313,7 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
     
     Returns:
         A dictionary of dictionaries, mapping (aggregation unit) -> (column name) ->
-        ({outlier score, observed frequencies, expected frequencies}).
+        (outlier score).
     """
     agg_units = sorted(set(data[agg_col]), key=lambda x: (str(type(x)), x))
     outlier_scores = collections.defaultdict(dict)
@@ -326,11 +332,12 @@ def _run_alg(data, agg_col, cat_cols, model, null_responses):
         for agg_unit in agg_units:
             frequencies[agg_unit],grouped = _get_frequencies(data, col, col_vals, agg_col, agg_unit, agg_to_data)
             agg_col_to_data[agg_unit][col] = grouped
-        outlier_scores_for_col, expected_frequencies_for_col = model.compute_outlier_scores(frequencies)
+        outlier_scores_for_col, expected_frequencies_for_col, p_values_for_col = model.compute_outlier_scores(frequencies)
         for agg_unit in agg_units:
             outlier_scores[agg_unit][col] = {'score': outlier_scores_for_col[agg_unit],
                                              'observed_freq': frequencies[agg_unit],
-                                             'expected_freq': expected_frequencies_for_col[agg_unit]}
+                                             'expected_freq': expected_frequencies_for_col[agg_unit],
+                                             'p_value': p_values_for_col[agg_unit]}
     return outlier_scores, agg_col_to_data
 
 
