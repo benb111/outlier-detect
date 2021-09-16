@@ -28,9 +28,11 @@ def print_scores(scores):
             score = scores[interviewer][column]['score']
             observed_frequencies = scores[interviewer][column]['observed_freq']
             expected_frequencies = scores[interviewer][column]['expected_freq']
+            p_value = scores[interviewer][column]['p_value']
 
-            print("%s" % observed_frequencies)
-            print("%s" % expected_frequencies)
+            print("Observed Frequencies: %s" % observed_frequencies)
+            print("Expected Frequencies: %s" % expected_frequencies)
+            print("P-Value: %d" % p_value)
 
 if __name__ == '__main__':
     data = pd.read_csv(DATA_FILE)  # Uncomment to load as pandas.DataFrame.
