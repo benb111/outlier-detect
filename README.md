@@ -1,5 +1,5 @@
-*This no longer being maintained.*
-*Please use https://github.com/dimagi/outlier-detect/ instead*
+**This repo no longer being maintained.**
+**Please use https://github.com/dimagi/outlier-detect/ instead**
 
 outlier-detect (http://github.com/benb111/outlier-detect)
 Ben Birnbaum (benjamin.birnbaum@gmail.com)
